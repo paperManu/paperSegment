@@ -83,10 +83,12 @@ int main()
             lZSegment.feedBackground(lDepth);
             lBGNbr++;
         }
-        else if(lInitBG == true)
+        else if(lInitBG == true && !lIsBG)
         {
             lZSegment.computeBackground();
             lIsBG = true;
+
+            std::cerr << "Background initialized." << std::endl;
         }
 
         if(lIsBG == true)
@@ -95,6 +97,9 @@ int main()
             lSeed.setRoughSegment(lZSegment.getBackground(),
                                   lZSegment.getForeground(),
                                   lZSegment.getUnknown());
+
+            cv::imshow("seed", lZSegment.getBackground() + lZSegment.getForeground()/2);
+
             std::vector<seedObject> lSeeds = lSeed.getSeeds();
             if(lSeeds.size() > 0)
             {
@@ -107,6 +112,12 @@ int main()
                 cv::Mat lFGCosts = lGmm.getCosts(lSeeds[0].unknown);
 
                 lColorSegment.setCosts(lRGB, lBGCosts, lFGCosts, lSeeds[0].background+lSeeds[0].mask, lSeeds[0].foreground);
+
+                if(lColorSegment.getSegment(lSegment))
+                {
+                    cv::flip(lSegment, lSegment, 0);
+                    cv::imshow("segment!", lSegment);
+                }
             }
         }
 

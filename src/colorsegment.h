@@ -70,7 +70,7 @@ private:
     tbb::atomic<unsigned> mInputCounter;
     tbb::atomic<unsigned> mLabelCounter;
 
-    // Données OpenGL et CUDA
+    // Données OpenGL
     GLuint mVertexArray;
     GLuint mVertexBuffer[2];
     GLuint mCostTextures[2];
@@ -93,6 +93,13 @@ private:
     cv::Mat mCPUData[3];
     Npp16u* mCudaDatabuffer;
     int mCudaDatabufferStep;
+
+    // Données CUDA
+    Npp8u* mCudaGCBuffer;
+    Npp8u* mCudaLabels;
+    NppiGraphcutState* mCudaGraphcutState;
+
+    int mCudaLabelsStep;
 
     // Des PBO, pour l'interop entre CUDA et GL (vu que ça marche pas avec les textures ...
     GLuint mPBO[3];
