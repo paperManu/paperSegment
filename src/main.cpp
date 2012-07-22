@@ -26,7 +26,7 @@ int main()
         return 1;
     }
 
-    lKinect->setCalibration("../Resources/calibration_stereo.xml");
+    lKinect->setCalibration("./calibration_stereo.xml");
 
     lKinect->startVideo();
     lKinect->startDepth();

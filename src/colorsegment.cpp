@@ -267,7 +267,7 @@ bool colorSegment::initGL()
 
     if(!glfwOpenWindow(mImgSize[0], mImgSize[1], 0, 0, 0, 0, 0, 0, GLFW_WINDOW))
     {
-        std::cerr << "Failed to create GL window." << std::endl;
+        std::cerr << "Failed to crqeate GL window." << std::endl;
         glfwTerminate();
         return false;
     }

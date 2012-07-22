@@ -9,6 +9,7 @@
 
 #define GLFW_INCLUDE_GL3
 #define GLFW_NO_GLU
+#define GL3_PROTOTYPES
 
 #include <iostream>
 #include "opencv2/opencv.hpp"

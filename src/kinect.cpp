@@ -69,7 +69,7 @@ cv::Mat kinect::getRGB()
 {
     cv::Mat lMat, lRemat;
 
-    // Récupération de la dernière image capturée
+    // Récupération de la dernière image capturée    
     mMutex.lock();
     lMat = mRgbFrontBuffer.clone();
     mMutex.unlock();
@@ -114,12 +114,9 @@ cv::Mat kinect::getDepthmap()
 /**************************/
 void kinect::VideoCallback(void *pRgb, uint32_t pTime)
 {
-    cv::Mat lTempBuffer;
-
     mMutex.lock();
 
-    uint8_t* lRgb = static_cast<uint8_t*>(pRgb);
-    mRgbFrontBuffer.data = (uchar*)lRgb;
+    memcpy(mRgbFrontBuffer.data, pRgb, 640*480*sizeof(unsigned char));
 
     mMutex.unlock();
 }
@@ -127,12 +124,9 @@ void kinect::VideoCallback(void *pRgb, uint32_t pTime)
 /**************************/
 void kinect::DepthCallback(void *pDepth, uint32_t pTime)
 {
-    cv::Mat lTempBuffer;
-
     mMutex.lock();
 
-    uint16_t* lDepth = static_cast<uint16_t*>(pDepth);
-    mDepthFrontBuffer.data = (uchar*)lDepth;
+    memcpy(mDepthFrontBuffer.data, pDepth, 640*480*sizeof(unsigned short));
 
     mMutex.unlock();
 }
