@@ -77,7 +77,7 @@ void main(void)
 
 		// Matrice des coûts pour les connexions aux terminaux
 		// A notez qu'on décale tout de 0.5f (soit 32767) puisque la texture
-		// de sortie est en 16U
+		// de sortie est en 16U (pas de valeurs négatives autorisées)
 		// On considère que ce qui est inconnu est dans le BG
 		// Colonnes et lignes paires
 		if(lEvenColumn == true && lEvenLine == true)

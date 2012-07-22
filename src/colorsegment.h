@@ -36,6 +36,9 @@ public:
     // Arrêt de la segmentation
     void stop();
 
+    // Spécification du coût maximum de lissage
+    void setMaxSmoothCost(unsigned int pCost);
+
     // Attribution de nouveaux coûts de données, de la nouvelle image,
     // avec un masque pour les éventuelle données fixées
     bool setCosts(cv::Mat &pImg, cv::Mat &pBGCosts, cv::Mat &pFGCosts, cv::Mat pBG = cv::Mat(), cv::Mat pFG = cv::Mat());
