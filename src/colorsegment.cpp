@@ -82,6 +82,12 @@ void colorSegment::stop()
 }
 
 /**********************/
+void colorSegment::setMaxSmoothCost(unsigned int pCost)
+{
+    mMaxSmoothCost = pCost;
+}
+
+/**********************/
 bool colorSegment::setCosts(cv::Mat &pImg, cv::Mat &pBGCosts, cv::Mat &pFGCosts, cv::Mat pBG, cv::Mat pFG)
 {
     // On vérifie que toutes ces données ont le bon format

@@ -50,6 +50,7 @@ int main()
 
     colorSegment lColorSegment;
     lColorSegment.init(640, 480);
+    lColorSegment.setMaxSmoothCost(100);
 
     cv::Mat lRGB;
     cv::Mat lDepth;
