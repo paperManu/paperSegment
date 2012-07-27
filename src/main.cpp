@@ -15,10 +15,12 @@ int main()
 
     // Lancement du kinect
     Freenect::Freenect lFreenect;
-    kinect* lKinect;
+    kinect* lKinect = NULL;
     try
     {
         lKinect = &lFreenect.createDevice<kinect>(0);
+        if(lKinect == NULL)
+            return 1;
     }
     catch(...)
     {

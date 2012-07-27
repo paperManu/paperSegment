@@ -15,6 +15,11 @@ struct seedObject
     cv::Mat foreground; // ce qui est assuré d'être dans le FG
     cv::Mat unknown; // ce qui nécessite d'être précisé
     cv::Mat mask; // ce dont on ne tiendra pas compte
+
+    unsigned int x_min;
+    unsigned int x_max;
+    unsigned int y_min;
+    unsigned int y_max;
 };
 
 class seed

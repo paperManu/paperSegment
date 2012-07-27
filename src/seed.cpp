@@ -60,8 +60,14 @@ bool seed::setRoughSegment(const cv::Mat &pBG, const cv::Mat &pFG, const cv::Mat
 
             // on met ça dans un nouvel élément de mSeeds
             seedObject lSeed;
+
             lSeed.foreground = cv::Mat(lFilteredLabelImg, true);
             lSeed.size = lIt->second->area;
+            lSeed.x_min = lIt->second->minx;
+            lSeed.x_max = lIt->second->maxx;
+            lSeed.y_min = lIt->second->miny;
+            lSeed.y_max = lIt->second->maxy;
+
             mSeeds.push_back(lSeed);
     }
 

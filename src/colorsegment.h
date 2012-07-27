@@ -43,6 +43,9 @@ public:
     // avec un masque pour les éventuelle données fixées
     bool setCosts(cv::Mat &pImg, cv::Mat &pBGCosts, cv::Mat &pFGCosts, cv::Mat pBG = cv::Mat(), cv::Mat pFG = cv::Mat());
 
+    // Définit les limites dans lesquelles sera faite la segmentation
+    void setLimits(unsigned int pXMin, unsigned int pXMax, unsigned int pYMin, unsigned int pYMax);
+
     // Récupération de la segmentation
     bool getSegment(cv::Mat &pSegment);
 
@@ -59,6 +62,9 @@ private:
 
     // Caractériques des images
     int mImgSize[2];
+
+    // Limites pour la segmentation
+    unsigned int mXMin, mXMax, mYMin, mYMax;
 
     // Stockage de l'image à segmenter
     cv::Mat mImg;

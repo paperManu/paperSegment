@@ -99,7 +99,7 @@ cv::Mat kinect::getDepthmap()
     if(mIsCalibrated)
     {
         cv::remap(lMat, lRemat, mRectifyRight1, mRectifyRight2, cv::INTER_NEAREST);
-        // On décale tout de 16 pixels vers la gauche, du fait de la méthode
+        // On décale tout de 8 pixels vers la gauche, du fait de la méthode
         // utilisée par le Kinect pour créer la map de profondeur
         lMat.setTo(65536);
         lRemat(cv::Rect(mDepthShift, 0, 640-mDepthShift, 480)).copyTo(lMat(cv::Rect(0,0, 640-mDepthShift, 480)));
@@ -113,10 +113,10 @@ cv::Mat kinect::getDepthmap()
 
 /**************************/
 void kinect::VideoCallback(void *pRgb, uint32_t pTime)
-{
+{    
     mMutex.lock();
 
-    memcpy(mRgbFrontBuffer.data, pRgb, 640*480*sizeof(unsigned char));
+    memcpy(mRgbFrontBuffer.data, pRgb, 640*480*3*sizeof(unsigned char));
 
     mMutex.unlock();
 }

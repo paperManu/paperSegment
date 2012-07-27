@@ -101,8 +101,6 @@ bool colorSegment::setCosts(cv::Mat &pImg, cv::Mat &pBGCosts, cv::Mat &pFGCosts,
     if(!lValid)
         return false;
 
-    //cv::imwrite("mask.png", pFG+pBG/2);
-
     // On calcul notre matrice des coûts, combinaison des coûts de données
     // du FG, BG, et des zones déjà fixée par pBG et pFG
     // Du fait de l'utilisation en opengl plus tard, on décalera le zéro à 32767
@@ -145,6 +143,20 @@ bool colorSegment::setCosts(cv::Mat &pImg, cv::Mat &pBGCosts, cv::Mat &pFGCosts,
     mInputCounter++;
 
     return true;
+}
+
+/**********************/
+void colorSegment::setLimits(unsigned int pXMin, unsigned int pXMax, unsigned int pYMin, unsigned int pYMax)
+{
+    if(pXMin >= 0 && pXMin < (unsigned int)mImgSize[0]-1)
+        mXMin = pXMin;
+    if(pXMax < (unsigned int)mImgSize[0] && pXMax > pXMin)
+        mXMax = pXMax;
+
+    if(pYMin >= 0 && pYMin < (unsigned int)mImgSize[1]-1)
+        mYMin = pYMin;
+    if(pYMax < (unsigned int)mImgSize[1] && pYMax > pYMin)
+        mYMax = pYMax;
 }
 
 /**********************/

@@ -2,11 +2,8 @@
 #define KINECT_H
 
 #include "libfreenect.hpp"
-#include "libfreenect_sync.h"
 #include "opencv2/opencv.hpp"
 #include "boost/thread.hpp"
-
-//using namespace boost::interprocess;
 
 class kinect : public Freenect::FreenectDevice
 {
