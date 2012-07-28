@@ -372,7 +372,6 @@ void colorSegment::mainLoop()
     initGL();
     //initCUDA();
 
-
     mIsRunning = true;
     while(mIsRunning)
     {
