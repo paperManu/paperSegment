@@ -21,6 +21,7 @@ void seed::setMinimumSize(unsigned int pSize)
 /******************/
 void seed::setDilatationSize(unsigned int pSize)
 {
+    mStructElemSize = pSize;
     mStructElemDilate = cv::getStructuringElement(cv::MORPH_ELLIPSE,
                                             cv::Size(2*pSize+1, 2*pSize+1),
                                             cv::Point(pSize, pSize));
@@ -100,6 +101,11 @@ bool seed::setRoughSegment(const cv::Mat &pBG, const cv::Mat &pFG, const cv::Mat
         // Et on produit le masque
         cv::bitwise_not((*it).background + (*it).foreground + lDilate, (*it).mask);
 
+        // Bien entendu, tout ceci modifie les limites de nos blobs
+        (*it).x_min = std::max((unsigned int)0, (*it).x_min-mStructElemSize);
+        (*it).x_max = std::min((unsigned int)pFG.cols, (*it).x_max+mStructElemSize);
+        (*it).y_min = std::max((unsigned int)0, (*it).y_min-mStructElemSize);
+        (*it).y_max = std::min((unsigned int)pFG.rows, (*it).y_max+mStructElemSize);
     }
 
     return true;

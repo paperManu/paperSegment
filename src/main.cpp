@@ -81,7 +81,7 @@ int main()
             lInitBG = true;
         }
 
-        if(lInitBG == true && lBGNbr < 30)
+        if(lInitBG == true && lBGNbr < 90)
         {
             lZSegment.feedBackground(lDepth);
             lBGNbr++;

@@ -28,6 +28,11 @@ colorSegment::colorSegment()
 
     // Allocation des labels
     mLabels = cv::Mat::zeros(mFBOSize[1], mFBOSize[0], CV_8UC1);
+
+    mXMin = 0;
+    mXMax = mFBOSize[0];
+    mYMin = 0;
+    mYMax = mFBOSize[1];
 }
 
 /**********************/
@@ -41,15 +46,6 @@ colorSegment::~colorSegment()
 
     if(mCudaDatabuffer)
         nppiFree(mCudaDatabuffer);
-
-    if(mCudaGCBuffer)
-        nppiFree(mCudaGCBuffer);
-
-    if(mCudaLabels)
-        nppiFree(mCudaLabels);
-
-    if(mCudaGraphcutState)
-        nppiFree(mCudaGraphcutState);
 }
 
 /**********************/
@@ -470,12 +466,16 @@ void colorSegment::drawGL()
 void colorSegment::computeCuda()
 {
     NppiSize lSize;
-    lSize.width = mFBOSize[0];
-    lSize.height = mFBOSize[1];
+    // On ne va faire la segmentation que sur une zone précise
+    lSize.width = (mXMax - mXMin)*2;
+    lSize.height = (mYMax - mYMin)*2;
+
+    // Le décallage entre le début des données totales, et le début de la zone étudiées
+    int lDeltaBuffer = mXMin + mYMin*mFBOSize[0];
 
     if(mCudaDatabuffer == NULL)
     {
-        mCudaDatabuffer = nppiMalloc_16u_C1(mFBOSize[0], mFBOSize[1], &mCudaDatabufferStep);
+        mCudaDatabuffer = nppiMalloc_16u_C1(lSize.width, lSize.height, &mCudaDatabufferStep);
         if(mCudaDatabuffer != NULL)
         {
             std::cerr << "CUDA / NPP initialized." << std::endl;
@@ -486,17 +486,13 @@ void colorSegment::computeCuda()
             exit(1);
         }
 
-        // On en profite pour allouer les données du graphcut
-        int lGCBufferSize;
-        nppiGraphcutGetSize(lSize, &lGCBufferSize);
-        cudaMalloc(&mCudaGCBuffer, lGCBufferSize);
-
-        nppiGraphcutInitAlloc(lSize, &mCudaGraphcutState, mCudaGCBuffer);
-
-        mCudaLabels = nppiMalloc_8u_C1(mFBOSize[0], mFBOSize[1], &mCudaLabelsStep);
-
         // Il s'agit juste de la phase d'initialisation, on ne veut pas segmenter pour l'instant
         return;
+    }
+    else
+    {
+        nppiFree(mCudaDatabuffer);
+        mCudaDatabuffer = nppiMalloc_16u_C1(lSize.width, lSize.height, &mCudaDatabufferStep);
     }
 
     NppStatus lStatus;
@@ -507,8 +503,9 @@ void colorSegment::computeCuda()
     // en soustrayant 32768 (2^15) puisque ceux-ci peuvent être négatifs et cela a
     // été pris en compte dans le rendu GL
     int lTerminalsStep;
-    Npp32s* lTerminals = nppiMalloc_32s_C1(mFBOSize[0], mFBOSize[1], &lTerminalsStep);
-    cutilSafeCall(cudaMemcpy2D(mCudaDatabuffer, mCudaDatabufferStep, mCPUData[0].data, mFBOSize[0]*sizeof(ushort), mFBOSize[0]*sizeof(ushort), mFBOSize[1], cudaMemcpyHostToDevice));
+    Npp32s* lTerminals = nppiMalloc_32s_C1(lSize.width, lSize.height, &lTerminalsStep);
+    cutilSafeCall(cudaMemcpy2D(mCudaDatabuffer, mCudaDatabufferStep, mCPUData[0].data+lDeltaBuffer, mFBOSize[0]*sizeof(ushort),
+                               lSize.width*sizeof(ushort), lSize.height, cudaMemcpyHostToDevice));
     lStatus = nppiConvert_16u32s_C1R(mCudaDatabuffer, mCudaDatabufferStep, lTerminals, lTerminalsStep, lSize);
     lStatus = nppiSubC_32s_C1IRSfs((Npp32s)32767, lTerminals, lTerminalsStep, lSize, 1);
 
@@ -521,8 +518,9 @@ void colorSegment::computeCuda()
 
     // On converti simplement les coûts vers le bas
     int lDownStep;
-    Npp32s* lDown = nppiMalloc_32s_C1(mFBOSize[0], mFBOSize[1], &lDownStep);
-    cutilSafeCall(cudaMemcpy2D(mCudaDatabuffer, mCudaDatabufferStep, mCPUData[2].data, mFBOSize[0]*sizeof(ushort), mFBOSize[0]*sizeof(ushort), mFBOSize[1], cudaMemcpyHostToDevice));
+    Npp32s* lDown = nppiMalloc_32s_C1(lSize.width, lSize.height, &lDownStep);
+    cutilSafeCall(cudaMemcpy2D(mCudaDatabuffer, mCudaDatabufferStep, mCPUData[2].data+lDeltaBuffer, mFBOSize[0]*sizeof(ushort),
+                               lSize.width*sizeof(ushort), lSize.height, cudaMemcpyHostToDevice));
     lStatus = nppiConvert_16u32s_C1R(mCudaDatabuffer, mCudaDatabufferStep, lDown, lDownStep, lSize);
 
     /*****
@@ -534,25 +532,25 @@ void colorSegment::computeCuda()
 
     // Pour les coûts vers le haut, il faut décaler les coûts précédents vers le bas
     int lBufferStep, lTmp1Step;
-    Npp16u* lBuffer = nppiMalloc_16u_C1(mFBOSize[0], mFBOSize[1], &lBufferStep);
-    Npp16u* lTmp1 = nppiMalloc_16u_C1(mFBOSize[0], mFBOSize[1], &lTmp1Step);
+    Npp16u* lBuffer = nppiMalloc_16u_C1(lSize.width, lSize.height, &lBufferStep);
+    Npp16u* lTmp1 = nppiMalloc_16u_C1(lSize.width, lSize.height, &lTmp1Step);
 
     NppiRect lRect;
     lRect.x = 0;
     lRect.y = 0;
-    lRect.width = mFBOSize[0];
-    lRect.height = mFBOSize[1];
+    lRect.width = lSize.width;
+    lRect.height = lSize.height;
 
     lStatus = nppiRotate_16u_C1R(mCudaDatabuffer, lSize, mCudaDatabufferStep, lRect, lBuffer, lBufferStep, lRect, 0, 0, -1, NPPI_INTER_NN);
     // On s'assure que la première ligne est à zéro
     lStatus = nppiMirror_16u_C1R(lBuffer, lBufferStep, lTmp1, lTmp1Step, lSize, NPP_HORIZONTAL_AXIS);
-    lRoiSize.width = mFBOSize[0];
+    lRoiSize.width = lSize.width;
     lRoiSize.height = 1;
     lStatus = nppiSet_16u_C1R(0, lTmp1, lTmp1Step, lRoiSize);
     lStatus = nppiMirror_16u_C1R(lTmp1, lTmp1Step, lBuffer, lBufferStep, lSize, NPP_HORIZONTAL_AXIS);
 
     int lUpStep;
-    Npp32s* lUp = nppiMalloc_32s_C1(mFBOSize[0], mFBOSize[1], &lUpStep);
+    Npp32s* lUp = nppiMalloc_32s_C1(lSize.width, lSize.height, &lUpStep);
     lStatus = nppiConvert_16u32s_C1R(lBuffer, lBufferStep, lUp, lUpStep, lSize);
 
     /*****
@@ -567,7 +565,7 @@ void colorSegment::computeCuda()
     // Pour les coûts vers la droite et la gauche, ils doivent être transposés
     // Ne nous privons donc pas !
     int lTmp2Step;
-    int lMaxSize = std::max(mFBOSize[0], mFBOSize[1]);
+    int lMaxSize = std::max(lSize.width, lSize.height);
 
     NppiSize lSquareSize;
     lSquareSize.width = lMaxSize;
@@ -582,22 +580,23 @@ void colorSegment::computeCuda()
     lTmp1 = nppiMalloc_16u_C1(lMaxSize, lMaxSize, &lTmp1Step);
     Npp16u* lTmp2 = nppiMalloc_16u_C1(lMaxSize, lMaxSize, &lTmp2Step);
 
-    cutilSafeCall(cudaMemcpy2D(mCudaDatabuffer, mCudaDatabufferStep, mCPUData[1].data, mFBOSize[0]*sizeof(ushort), mFBOSize[0]*sizeof(ushort), mFBOSize[1], cudaMemcpyHostToDevice));
+    cutilSafeCall(cudaMemcpy2D(mCudaDatabuffer, mCudaDatabufferStep, mCPUData[1].data+lDeltaBuffer, mFBOSize[0]*sizeof(ushort),
+                               lSize.width*sizeof(ushort), lSize.height, cudaMemcpyHostToDevice));
     lStatus = nppiCopy_16u_C1R(mCudaDatabuffer, mCudaDatabufferStep, lBuffer, lBufferStep, lSize);
     lStatus = nppiMirror_16u_C1R(lBuffer, lBufferStep, lTmp1, lTmp1Step, lSize, NPP_VERTICAL_AXIS);
     // Le -1 de la ligne suivante est nécessaire pour conserver un graphe cohérent
-    lStatus = nppiRotate_16u_C1R(lTmp1, lSquareSize, lTmp1Step, lSquareRect, lTmp2, lTmp2Step, lSquareRect, 90, 0, mFBOSize[0]-1.f, NPPI_INTER_NN);
+    lStatus = nppiRotate_16u_C1R(lTmp1, lSquareSize, lTmp1Step, lSquareRect, lTmp2, lTmp2Step, lSquareRect, 90, 0, lSize.width-1.f, NPPI_INTER_NN);
     // On s'assure que les pixels à droite sont nuls
-    lRoiSize.width = mFBOSize[1];
+    lRoiSize.width = lSize.height;
     lRoiSize.height = 1;
     lStatus = nppiSet_16u_C1R(0, lTmp2, lTmp2Step, lRoiSize);
     // On obtient directement les coûts vers la droite
     NppiSize lTSize;
-    lTSize.width = mFBOSize[1];
-    lTSize.height = mFBOSize[0];
+    lTSize.width = lSize.height;
+    lTSize.height = lSize.width;
 
     int lRightStep;
-    Npp32s* lRight = nppiMalloc_32s_C1(mFBOSize[1], mFBOSize[0], &lRightStep);
+    Npp32s* lRight = nppiMalloc_32s_C1(lSize.height, lSize.width, &lRightStep);
     lStatus = nppiConvert_16u32s_C1R(lTmp2, lTmp2Step, lRight, lRightStep, lTSize);
 
     /*****
@@ -617,7 +616,7 @@ void colorSegment::computeCuda()
     lStatus = nppiMirror_16u_C1R(lBuffer, lBufferStep, lTmp1, lTmp1Step, lSquareSize, NPP_HORIZONTAL_AXIS);
     // Et on converti le résultat
     int lLeftStep;
-    Npp32s* lLeft = nppiMalloc_32s_C1(mFBOSize[1], mFBOSize[0], &lLeftStep);
+    Npp32s* lLeft = nppiMalloc_32s_C1(lSize.height, lSize.width, &lLeftStep);
     lStatus = nppiConvert_16u32s_C1R(lTmp1, lTmp1Step, lLeft, lLeftStep, lTSize);
 
     /*****
@@ -626,6 +625,14 @@ void colorSegment::computeCuda()
     cutilSafeCall(cudaMemcpy2D(lMat.data, mFBOSize[1]*sizeof(ushort), lTmp1, lTmp1Step, mFBOSize[1]*sizeof(ushort), mFBOSize[0], cudaMemcpyDeviceToHost));
     cv::imwrite("left.png", lMat);
     /*****/
+
+    // On en profite pour allouer les données du graphcut
+    int lGCBufferSize;
+    nppiGraphcutGetSize(lSize, &lGCBufferSize);
+    cudaMalloc(&mCudaGCBuffer, lGCBufferSize);
+    nppiGraphcutInitAlloc(lSize, &mCudaGraphcutState, mCudaGCBuffer);
+
+    mCudaLabels = nppiMalloc_8u_C1(lSize.width, lSize.height, &mCudaLabelsStep);
 
     // Graphcut !
     std::cerr << "Start graphcut ...";
@@ -642,9 +649,14 @@ void colorSegment::computeCuda()
     // Copie du résultat dans mLabels
     mLabelCounter++;
     mLabelMutex.lock();
-    cudaMemcpy2D(mLabels.data, mFBOSize[0], mCudaLabels, mCudaLabelsStep, mFBOSize[0], mFBOSize[1], cudaMemcpyDeviceToHost);
+    mLabels.setTo(0); // On met toutes les valeurs à zéro, puis on copie juste la partie segmentée
+    cudaMemcpy2D(mLabels.data+lDeltaBuffer, mFBOSize[0], mCudaLabels, mCudaLabelsStep, lSize.width, lSize.height, cudaMemcpyDeviceToHost);
     //cv::imwrite("segment.png", mLabels);
     mLabelMutex.unlock();
+
+    nppiFree(mCudaGCBuffer);
+    nppiFree(mCudaLabels);
+    nppiFree(mCudaGraphcutState);
 
     nppiFree(lTerminals);
     nppiFree(lUp);
