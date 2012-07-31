@@ -8,6 +8,7 @@ gmm::gmm()
     :mIsGmm(false),
       mClusterCount(3),
       mEMLikelihood(1e-1),
+      mMaxEMLoop(10),
       mMaxCost(10)
 {
 }
@@ -33,6 +34,12 @@ void gmm::setEMMinLikelihood(float pLikelihood)
         return;
 
     mEMLikelihood = pLikelihood;
+}
+
+/***********************/
+void gmm::setMaxEMLoop(unsigned int pLoop)
+{
+    mMaxEMLoop = max(1u, pLoop);
 }
 
 /***********************/
@@ -149,9 +156,13 @@ void gmm::calcGmm(cv::Mat &pMask)
     lLikelihood = getLikelihood(lKMeanSource, lMu, lSigma, lWeight);
 
     // Boucle principale
+    // On limite le nombre de tours ...
+    unsigned int lCounter = 0;
     bool lContinue = true;
-    while(lContinue)
+    while(lContinue && lCounter < mMaxEMLoop)
     {
+        lCounter++;
+
         // E-step
         cv::Mat lGamma(lMaskPixels, mClusterCount, CV_32F);
 

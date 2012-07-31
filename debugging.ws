@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <root xmlns="http://www.vips.ecs.soton.ac.uk/nip/7.26.3">
-  <Workspace window_x="0" window_y="0" window_width="1270" window_height="809" filename="/Users/emmanueldurand/Documents/Dev/git/base/projects/kinect/debugging.ws" view="WORKSPACE_MODE_REGULAR" scale="1" offset="0" lpane_position="100" lpane_open="false" rpane_position="400" rpane_open="false" local_defs="// private definitions for this workspace&#10;" name="debugging" caption="Default empty workspace">
+  <Workspace window_x="0" window_y="0" window_width="1270" window_height="809" filename="/home/manu/src/papersegment/debugging.ws" view="WORKSPACE_MODE_REGULAR" scale="1" offset="0" lpane_position="100" lpane_open="false" rpane_position="400" rpane_open="false" local_defs="// private definitions for this workspace&#10;" name="debugging" caption="Default empty workspace">
     <Column x="0" y="0" open="true" selected="false" sform="false" next="4" name="A" caption="T">
       <Subcolumn vislevel="3">
         <Row popup="false" name="A1">
           <Rhs vislevel="1" flags="1">
-            <iImage window_x="67" window_y="20" window_width="750" window_height="750" image_left="734" image_top="674" image_mag="-2" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
+            <iImage window_x="67" window_y="24" window_width="750" window_height="750" image_left="736" image_top="704" image_mag="-2" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
-            <iText formula="Image_file &quot;/Users/emmanueldurand/Documents/Dev/git/base/projects/kinect/release/kinect.app/Contents/Resources/terminals.png&quot;"/>
+            <iText formula="Image_file &quot;/home/manu/src/papersegment/release/terminals.png&quot;"/>
           </Rhs>
         </Row>
         <Row popup="false" name="A2">
@@ -30,7 +30,7 @@
           <Rhs vislevel="1" flags="1">
             <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
-            <iText formula="Image_file &quot;/Users/emmanueldurand/Documents/Dev/git/base/projects/kinect/release/kinect.app/Contents/Resources/down.png&quot;"/>
+            <iText formula="Image_file &quot;/home/manu/src/papersegment/release/down.png&quot;"/>
           </Rhs>
         </Row>
         <Row popup="false" name="B2">
@@ -42,7 +42,7 @@
         </Row>
         <Row popup="false" name="B3">
           <Rhs vislevel="1" flags="1">
-            <iImage window_x="346" window_y="12" window_width="750" window_height="750" image_left="734" image_top="674" image_mag="-2" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
+            <iImage window_x="346" window_y="24" window_width="750" window_height="750" image_left="184" image_top="176" image_mag="2" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
             <iText formula="Image_transform_item.Flip_item.Top_bottom_item.action B2"/>
           </Rhs>
@@ -55,7 +55,7 @@
           <Rhs vislevel="1" flags="1">
             <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
-            <iText formula="Image_file &quot;/Users/emmanueldurand/Documents/Dev/git/base/projects/kinect/release/kinect.app/Contents/Resources/up.png&quot;"/>
+            <iText formula="Image_file &quot;/home/manu/src/papersegment/release/up.png&quot;"/>
           </Rhs>
         </Row>
         <Row popup="false" name="D2">
@@ -67,7 +67,7 @@
         </Row>
         <Row popup="false" name="D3">
           <Rhs vislevel="1" flags="1">
-            <iImage window_x="283" window_y="0" window_width="750" window_height="750" image_left="89" image_top="82" image_mag="4" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
+            <iImage window_x="50" window_y="24" window_width="695" window_height="851" image_left="170" image_top="758" image_mag="2" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
             <iText formula="Image_transform_item.Flip_item.Top_bottom_item.action D2"/>
           </Rhs>
@@ -80,7 +80,7 @@
           <Rhs vislevel="1" flags="1">
             <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
-            <iText formula="Image_file &quot;/Users/emmanueldurand/Documents/Dev/git/base/projects/kinect/release/kinect.app/Contents/Resources/right.png&quot;"/>
+            <iText formula="Image_file &quot;/home/manu/src/papersegment/release/right.png&quot;"/>
           </Rhs>
         </Row>
         <Row popup="false" name="E2">
@@ -92,20 +92,20 @@
         </Row>
         <Row popup="false" name="E3">
           <Rhs vislevel="1" flags="1">
-            <iImage window_x="627" window_y="92" window_width="750" window_height="750" image_left="357" image_top="613" image_mag="1" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
+            <iImage window_x="743" window_y="24" window_width="695" window_height="851" image_left="619" image_top="640" image_mag="1" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
             <iText formula="Image_transform_item.Flip_item.Top_bottom_item.action E2"/>
           </Rhs>
         </Row>
       </Subcolumn>
     </Column>
-    <Column x="876" y="249" open="true" selected="false" sform="false" next="4" name="F" caption="right">
+    <Column x="876" y="249" open="true" selected="true" sform="false" next="4" name="F" caption="right">
       <Subcolumn vislevel="3">
         <Row popup="false" name="F1">
           <Rhs vislevel="1" flags="1">
             <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
-            <iText formula="Image_file &quot;/Users/emmanueldurand/Documents/Dev/git/base/projects/kinect/release/kinect.app/Contents/Resources/left.png&quot;"/>
+            <iText formula="Image_file &quot;/home/manu/src/papersegment/release/left.png&quot;"/>
           </Rhs>
         </Row>
         <Row popup="false" name="F2">
@@ -117,7 +117,7 @@
         </Row>
         <Row popup="false" name="F3">
           <Rhs vislevel="1" flags="1">
-            <iImage window_x="67" window_y="20" window_width="750" window_height="750" image_left="583" image_top="491" image_mag="1" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
+            <iImage window_x="67" window_y="24" window_width="992" window_height="846" image_left="309" image_top="1179" image_mag="4" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
             <iText formula="Image_transform_item.Flip_item.Top_bottom_item.action F2"/>
           </Rhs>
@@ -149,7 +149,7 @@
         </Row>
       </Subcolumn>
     </Column>
-    <Column x="434" y="249" open="true" selected="true" sform="false" next="5" name="H" caption="segment">
+    <Column x="434" y="249" open="true" selected="false" sform="false" next="5" name="H" caption="segment">
       <Subcolumn vislevel="3">
         <Row popup="false" name="H1">
           <Rhs vislevel="1" flags="1">
@@ -238,7 +238,7 @@
               </Row>
               <Row name="interp">
                 <Rhs vislevel="2" flags="6">
-                  <Subcolumn vislevel="1">
+                  <Subcolumn vislevel="0">
                     <Row name="default">
                       <Rhs vislevel="0" flags="4">
                         <iText/>

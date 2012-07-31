@@ -43,8 +43,13 @@ private:
     /***********/
     // Attributs
     /***********/
+    // Surface minimale d'un blob
     unsigned int mMinSize;
+
+    // Elément structurant pour la dilatation
     cv::Mat mStructElemDilate;
+    // ... et la dimension définissant celui-ci
+    unsigned int mStructElemSize;
 
     std::vector<seedObject> mSeeds;
 
