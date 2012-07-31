@@ -26,6 +26,7 @@ public:
     // Paramètrages
     void setClusterCount(int pCount);
     void setEMMinLikelihood(float pLikelihood);
+    void setMaxEMLoop(unsigned int pLoop);
     void setMaxCost(int pCost);
 
     // Spécifie l'image RGB sur laquelle on travaille
@@ -55,6 +56,7 @@ private:
 
     int mClusterCount;
     float mEMLikelihood;
+    unsigned int mMaxEMLoop;
 
     int mMaxCost;
 

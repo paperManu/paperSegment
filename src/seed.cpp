@@ -1,6 +1,8 @@
 #include "seed.h"
 #include "cvblob.h"
 
+#include <math.h>
+
 /******************/
 seed::seed()
     :mMinSize(64)
@@ -102,10 +104,16 @@ bool seed::setRoughSegment(const cv::Mat &pBG, const cv::Mat &pFG, const cv::Mat
         cv::bitwise_not((*it).background + (*it).foreground + lDilate, (*it).mask);
 
         // Bien entendu, tout ceci modifie les limites de nos blobs
-        (*it).x_min = std::max((unsigned int)0, (*it).x_min-mStructElemSize);
-        (*it).x_max = std::min((unsigned int)pFG.cols, (*it).x_max+mStructElemSize);
-        (*it).y_min = std::max((unsigned int)0, (*it).y_min-mStructElemSize);
-        (*it).y_max = std::min((unsigned int)pFG.rows, (*it).y_max+mStructElemSize);
+        (*it).x_min = std::max((unsigned int)0, (*it).x_min-mStructElemSize*2);
+        (*it).x_max = std::min((unsigned int)pFG.cols, (*it).x_max+mStructElemSize*2);
+        (*it).y_min = std::max((unsigned int)0, (*it).y_min-mStructElemSize*2);
+        (*it).y_max = std::min((unsigned int)pFG.rows, (*it).y_max+mStructElemSize*2);
+
+        // On va rester dans des valeurs "rondes" au sens binaire
+        /*(*it).x_min = (unsigned int)floor((double)(*it).x_min/32.f) * 32;
+        (*it).x_max = (unsigned int)(floor((double)(*it).x_max/32.f)+1.f) * 32;
+        (*it).y_min = (unsigned int)floor((double)(*it).y_min/32.f) * 32;
+        (*it).y_max = (unsigned int)(floor((double)(*it).y_max/32.f)+1.f) * 32;*/
     }
 
     return true;

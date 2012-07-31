@@ -81,7 +81,7 @@ int main()
             lInitBG = true;
         }
 
-        if(lInitBG == true && lBGNbr < 90)
+        if(lInitBG == true && lBGNbr < 45)
         {
             lZSegment.feedBackground(lDepth);
             lBGNbr++;
@@ -114,7 +114,8 @@ int main()
                 lGmm.calcGmm(lSeeds[0].foreground);
                 cv::Mat lFGCosts = lGmm.getCosts(lSeeds[0].unknown);
 
-                lColorSegment.setCosts(lRGB, lBGCosts, lFGCosts, lSeeds[0].background+lSeeds[0].mask, lSeeds[0].foreground);
+                lColorSegment.setCosts(lRGB, lBGCosts, lFGCosts, lSeeds[0].background+lSeeds[0].mask, lSeeds[0].foreground,
+                                       lSeeds[0].x_min, lSeeds[0].x_max, 480-lSeeds[0].y_max, 480-lSeeds[0].y_min);
 
                 if(lColorSegment.getSegment(lSegment))
                 {
