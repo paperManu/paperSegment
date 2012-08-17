@@ -1,5 +1,6 @@
 #include <iostream>
 #include "opencv2/opencv.hpp"
+#include "boost/lexical_cast.hpp"
 
 #include "kinect.h"
 #include "zsegment.h"
@@ -9,8 +10,19 @@
 
 using namespace std;
 
-int main()
+int main(int argc, char** argv)
 {
+    bool lRecording = false;
+
+    if(argc > 1)
+    {
+        for(int i=1; i<argc; i++)
+        {
+            if(strcmp(argv[i], "--record") == 0)
+                lRecording = true;
+        }
+    }
+
     cerr << "Starting..." << endl;
 
     // Lancement du kinect
@@ -35,6 +47,8 @@ int main()
 
     lKinect->setVideoFormat(FREENECT_VIDEO_RGB);
     lKinect->setDepthFormat(FREENECT_DEPTH_11BIT);
+
+    lKinect->setRecording(lRecording);
 
     // Allocation des différents objets
     zSegment lZSegment;
@@ -81,7 +95,7 @@ int main()
             lInitBG = true;
         }
 
-        if(lInitBG == true && lBGNbr < 45)
+        if(lInitBG == true && lBGNbr < 60)
         {
             lZSegment.feedBackground(lDepth);
             lBGNbr++;
@@ -101,7 +115,16 @@ int main()
                                   lZSegment.getForeground(),
                                   lZSegment.getUnknown());
 
-            cv::imshow("seed", lZSegment.getBackground() + lZSegment.getForeground()/2);
+            cv::Mat lPresegment = lZSegment.getBackground() + lZSegment.getForeground()/2;
+            cv::imshow("seed", lPresegment);
+
+            if(lRecording)
+            {
+                std::string lName = "./grab/preSegment_";
+                lName += boost::lexical_cast<std::string>(time(NULL));
+                lName += std::string(".png");
+                cv::imwrite(lName, lPresegment);
+            }
 
             std::vector<seedObject> lSeeds = lSeed.getSeeds();
             if(lSeeds.size() > 0)
@@ -121,6 +144,14 @@ int main()
                 {
                     cv::flip(lSegment, lSegment, 0);
                     cv::imshow("segment!", lSegment);
+
+                    if(lRecording)
+                    {
+                        std::string lName = "./grab/segment_";
+                        lName += boost::lexical_cast<std::string>(time(NULL));
+                        lName += std::string(".png");
+                        cv::imwrite(lName, lSegment);
+                    }
                 }
             }
         }
@@ -135,7 +166,7 @@ int main()
         {
             lCalibrate = !lCalibrate;
         }
-        usleep(33000);
+        usleep(10000);
     }
 
     cerr << "Stopping..." << endl;

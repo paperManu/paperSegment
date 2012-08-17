@@ -182,14 +182,6 @@ bool colorSegment::getSegment(cv::Mat &pSegment)
             }
         }
 
-        /*for(int y=0; y<mFBOSize[1]; y+=2)
-        {
-            for(int x=0; x<mFBOSize[0]; x+=2)
-            {
-                pSegment.at<char>(y/2, x/2) = lLabel.at<char>(y, x)*255;
-            }
-        }*/
-
         return true;
     }
 

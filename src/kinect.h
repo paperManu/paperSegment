@@ -16,6 +16,9 @@ public:
     // Défini les déformations du couple rgb/z-cam à corriger
     bool setCalibration(const char* pFile);
 
+    // Demande l'enregistrement des images RGB et Z
+    void setRecording(bool pRecord);
+
     // Récupération de l'image RGB
     cv::Mat getRGB();
 
@@ -32,6 +35,8 @@ private:
     /***********/
     // Attributs
     /***********/
+    bool mIsRecording;
+
     freenect_resolution mResolution;
     freenect_video_format mVideoFormat;
     freenect_depth_format mDepthFormat;

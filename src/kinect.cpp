@@ -1,4 +1,6 @@
 #include "kinect.h"
+#include <boost/lexical_cast.hpp>
+#include <time.h>
 
 using namespace std;
 using namespace cv;
@@ -7,6 +9,7 @@ using namespace Freenect;
 /**************************/
 kinect::kinect(freenect_context *pCtx, int pIndex)
     :FreenectDevice(pCtx, pIndex),
+      mIsRecording(false),
       mResolution(FREENECT_RESOLUTION_MEDIUM),
       mVideoFormat(FREENECT_VIDEO_RGB),
       mDepthFormat(FREENECT_DEPTH_11BIT),
@@ -65,6 +68,12 @@ bool kinect::setCalibration(const char *pFile)
 }
 
 /**************************/
+void kinect::setRecording(bool pRecord)
+{
+    mIsRecording = pRecord;
+}
+
+/**************************/
 cv::Mat kinect::getRGB()
 {
     cv::Mat lMat, lRemat;
@@ -118,6 +127,22 @@ void kinect::VideoCallback(void *pRgb, uint32_t pTime)
 
     memcpy(mRgbFrontBuffer.data, pRgb, 640*480*3*sizeof(unsigned char));
 
+    // Sauvegarde éventuelle de l'image
+    if(mIsRecording)
+    {
+        std::string lName = "./grab/rgb_";
+        lName += boost::lexical_cast<std::string>(pTime);
+        lName += std::string(".png");
+        if(mIsCalibrated)
+        {
+            cv::Mat lMat;
+            cv::remap(mRgbFrontBuffer, lMat, mRectifyLeft1, mRectifyLeft2, cv::INTER_AREA);
+            cv::imwrite(lName, lMat);
+        }
+        else
+            cv::imwrite(lName, mRgbFrontBuffer);
+    }
+
     mMutex.unlock();
 }
 
@@ -127,6 +152,25 @@ void kinect::DepthCallback(void *pDepth, uint32_t pTime)
     mMutex.lock();
 
     memcpy(mDepthFrontBuffer.data, pDepth, 640*480*sizeof(unsigned short));
+
+    // Sauvegarde éventuelle de l'image
+    if(mIsRecording)
+    {
+        std::string lName = "./grab/depth_";
+        lName += boost::lexical_cast<std::string>(pTime);
+        lName += std::string(".png");
+        if(mIsCalibrated)
+        {
+            cv::Mat lMat, lRemat;
+            cv::remap(mDepthFrontBuffer, lRemat, mRectifyRight1, mRectifyRight2, cv::INTER_NEAREST);
+            lMat = lRemat.clone();
+            lMat.setTo(65536);
+            lRemat(cv::Rect(mDepthShift, 0, 640-mDepthShift, 480)).copyTo(lMat(cv::Rect(0,0, 640-mDepthShift, 480)));
+            cv::imwrite(lName, lMat);
+        }
+        else
+            cv::imwrite(lName, mDepthFrontBuffer);
+    }
 
     mMutex.unlock();
 }
