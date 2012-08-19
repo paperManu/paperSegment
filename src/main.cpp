@@ -48,7 +48,7 @@ int main(int argc, char** argv)
     lKinect->setVideoFormat(FREENECT_VIDEO_RGB);
     lKinect->setDepthFormat(FREENECT_DEPTH_11BIT);
 
-    lKinect->setRecording(lRecording);
+    //lKinect->setRecording(lRecording);
 
     // Allocation des différents objets
     zSegment lZSegment;
@@ -84,14 +84,15 @@ int main(int argc, char** argv)
         lRGB = lKinect->getRGB();
         lDepth = lKinect->getDepthmap();
 
-        if(lSeedNbr < 30)
+        if(lSeedNbr < 90)
         {
             lZSegment.feedStdDevEval(lDepth);
             lSeedNbr++;
         }
         else if(lInitBG == false)
         {
-            lZSegment.computeStdDev();
+            //lZSegment.computeStdDev();
+            lZSegment.setStdDev(5);
             lInitBG = true;
         }
 

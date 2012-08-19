@@ -28,6 +28,8 @@ public:
     // A appeler pour calculer l'écart-type
     // Les images sources sont ensuite supprimées
     void computeStdDev();
+    // Force l'écart type à une certaine valeur, pour toutes les profondeurs
+    void setStdDev(int pValue);
 
     // Modélisation de l'arrière-plan
     // Spécifie les dimensions des images que l'on acceptera plus tard

@@ -474,8 +474,13 @@ void colorSegment::computeCuda()
     lSize.width = (mXMax_t - mXMin_t)*2;
     lSize.height = (mYMax_t - mYMin_t)*2;
 
+    lSize.width = mFBOSize[0];
+    lSize.height = mFBOSize[1];
+
     // Le décallage entre le début des données totales, et le début de la zone étudiée
     int lDeltaBuffer = mXMin_t*2 + mYMin_t*2*mFBOSize[0];
+
+    lDeltaBuffer = 0;
 
     if(mCudaDatabuffer == NULL)
     {

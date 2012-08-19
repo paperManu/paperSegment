@@ -58,6 +58,10 @@ void zSegment::feedStdDevEval(cv::Mat &pImg)
 /*************************/
 void zSegment::computeStdDev()
 {
+    // TODO: il y a un souci dans le calcul de l'écart type, due sans doute
+    // aux pixels mal définis. Il faudrait les mettre de coté avant de calculer
+    // l'écart-type ...
+
     // On vérifie qu'il existe une liste d'images
     float lNbrImg = (float)mStdDevSources.size();
     if(lNbrImg == 0.f)
@@ -150,6 +154,22 @@ void zSegment::computeStdDev()
 }
 
 /*************************/
+void zSegment::setStdDev(int pValue)
+{
+    // On n'aura pas besoin de ces captures
+    mStdDevSources.clear();
+
+    if(pValue < 0)
+    {
+        mIsStdDev = false;
+        return;
+    }
+
+    mStdDev.setTo(pValue);
+    mIsStdDev = true;
+}
+
+/*************************/
 void zSegment::feedBackground(cv::Mat &pImg)
 {
     if(pImg.rows == 0 || pImg.cols == 0)
@@ -181,7 +201,6 @@ void zSegment::computeBackground()
         mIsBackground = false;
         return;
     }
-
 
     // Et on fait une simple moyenne, en créant un masque des zones peu fiables
     cv::Mat lBit;
