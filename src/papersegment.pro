@@ -21,7 +21,7 @@ QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,/usr/local/cuda/lib/"
 unix {
 INCLUDEPATH += /usr/local/include/libfreenect
 INCLUDEPATH += /usr/local/cuda/include
-INCLUDEPATH += /home/manu/src/NVIDIA_GPU_Computing_SDK/CUDALibraries/common/inc
+INCLUDEPATH += /home/manu/src/_externals/NVIDIA_GPU_Computing_SDK/CUDALibraries/common/inc
 INCLUDEPATH += /opt/intel/tbb/include
 LIBS += -lfreenect
 LIBS += -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_calib3d
