@@ -33,9 +33,9 @@ colorSegment::colorSegment()
     mLabels = cv::Mat::zeros(mFBOSize[1], mFBOSize[0], CV_8UC1);
 
     mXMin = 0;
-    mXMax = mFBOSize[0];
+    mXMax = mImgSize[0];
     mYMin = 0;
-    mYMax = mFBOSize[1];
+    mYMax = mImgSize[1];
 }
 
 /**********************/
@@ -138,15 +138,17 @@ bool colorSegment::setCosts(cv::Mat &pImg, cv::Mat &pBGCosts, cv::Mat &pFGCosts,
     cv::flip(lCosts, mDataCosts, 0);
     cv::flip(pImg, mImg, 0);
 
+
     if(pXMin >= 0 && pXMin < (unsigned int)mImgSize[0]-1)
         mXMin = pXMin;
-    if(pXMax < (unsigned int)mImgSize[0] && pXMax > pXMin)
+    if((pXMax < (unsigned int)mImgSize[0]) && pXMax > pXMin)
         mXMax = pXMax;
 
     if(pYMin >= 0 && pYMin < (unsigned int)mImgSize[1]-1)
         mYMin = pYMin;
-    if(pYMax < (unsigned int)mImgSize[1] && pYMax > pYMin)
+    if((pYMax < (unsigned int)mImgSize[1]) && pYMax > pYMin)
         mYMax = pYMax;
+
     mImgMutex.unlock();
 
     // Opération atomique, on signale que les textures ont changé
@@ -474,13 +476,13 @@ void colorSegment::computeCuda()
     lSize.width = (mXMax_t - mXMin_t)*2;
     lSize.height = (mYMax_t - mYMin_t)*2;
 
-    lSize.width = mFBOSize[0];
-    lSize.height = mFBOSize[1];
+    //lSize.width = mFBOSize[0];
+    //lSize.height = mFBOSize[1];
 
     // Le décallage entre le début des données totales, et le début de la zone étudiée
     int lDeltaBuffer = mXMin_t*2 + mYMin_t*2*mFBOSize[0];
 
-    lDeltaBuffer = 0;
+    //lDeltaBuffer = 0;
 
     if(mCudaDatabuffer == NULL)
     {
@@ -506,6 +508,8 @@ void colorSegment::computeCuda()
 
     NppStatus lStatus;
     NppiSize lRoiSize;
+
+    std::cout << "delta=" << lDeltaBuffer << " - width=" << lSize.width << " - height=" << lSize.height << std::endl;
 
     // On copie les résultats du rendu GL
     // Pour les différentiels de coût des terminaux, on les converti simplement,
