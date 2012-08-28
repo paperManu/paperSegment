@@ -58,7 +58,7 @@ int main(int argc, char** argv)
     gmm lGmm;
     lGmm.setClusterCount(3);
     lGmm.setEMMinLikelihood(0.1f);
-    lGmm.setMaxCost(200);
+    lGmm.setMaxCost(100);
 
     seed lSeed;
     lSeed.setMinimumSize(128);
@@ -66,7 +66,7 @@ int main(int argc, char** argv)
 
     colorSegment lColorSegment;
     lColorSegment.init(640, 480);
-    lColorSegment.setMaxSmoothCost(0);
+    lColorSegment.setMaxSmoothCost(200);
 
     cv::Mat lRGB;
     cv::Mat lDepth;

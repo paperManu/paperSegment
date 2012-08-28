@@ -86,6 +86,10 @@ void main(void)
 			{
 				firstFrag.r = 0.f;
 			}
+            else if(lBGMask == true)
+            {
+                firstFrag.r = 1.f;
+            }
 			else
 			{
 				firstFrag.r = lFGCost + 0.5f - lBGCost;

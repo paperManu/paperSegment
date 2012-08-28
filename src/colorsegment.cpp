@@ -463,9 +463,9 @@ void colorSegment::drawGL()
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-//    cv::imwrite("first.png", mCPUData[0]);
-//    cv::imwrite("second.png", mCPUData[1]);
-//    cv::imwrite("third.png", mCPUData[2]);
+    //cv::imwrite("first.png", mCPUData[0]);
+    //cv::imwrite("second.png", mCPUData[1]);
+    //cv::imwrite("third.png", mCPUData[2]);
 }
 
 /**********************/
@@ -522,7 +522,7 @@ void colorSegment::computeCuda()
     lStatus = nppiConvert_16u32s_C1R(mCudaDatabuffer, mCudaDatabufferStep, lTerminals, lTerminalsStep, lSize);
     lStatus = nppiSubC_32s_C1IRSfs((Npp32s)32767, lTerminals, lTerminalsStep, lSize, 1);
 
-    /*****
+    /*****/
     // Debug
     cv::Mat lMat = cv::Mat::zeros(lSize.height, lSize.width, CV_16UC1);
     cutilSafeCall(cudaMemcpy2D(lMat.data, lSize.width*sizeof(ushort), mCudaDatabuffer, mCudaDatabufferStep, lSize.width*sizeof(ushort), lSize.height, cudaMemcpyDeviceToHost));
@@ -541,7 +541,7 @@ void colorSegment::computeCuda()
     lStatus = nppiSet_16u_C1R(0, mCudaDatabuffer+mCudaDatabufferStep/2*(lSize.height-1), mCudaDatabufferStep, lRoiSize);
     lStatus = nppiConvert_16u32s_C1R(mCudaDatabuffer, mCudaDatabufferStep, lDown, lDownStep, lSize);
 
-    /*****
+    /*****/
     // Debug
     lMat = cv::Mat::zeros(lSize.height, lSize.width, CV_16UC1);
     cutilSafeCall(cudaMemcpy2D(lMat.data,  lSize.width*sizeof(ushort), mCudaDatabuffer, mCudaDatabufferStep, lSize.width*sizeof(ushort), lSize.height, cudaMemcpyDeviceToHost));
@@ -572,7 +572,7 @@ void colorSegment::computeCuda()
     Npp32s* lUp = nppiMalloc_32s_C1(lSize.width, lSize.height, &lUpStep);
     lStatus = nppiConvert_16u32s_C1R(lBuffer, lBufferStep, lUp, lUpStep, lSize);
 
-    /*****
+    /*****/
     // Debug
     lMat = cv::Mat::zeros(lSize.height, lSize.width, CV_16UC1);
     cutilSafeCall(cudaMemcpy2D(lMat.data, lSize.width*sizeof(ushort), lBuffer, lBufferStep, lSize.width*sizeof(ushort), lSize.height, cudaMemcpyDeviceToHost));
@@ -619,7 +619,7 @@ void colorSegment::computeCuda()
     Npp32s* lRight = nppiMalloc_32s_C1(lSize.height, lSize.width, &lRightStep);
     lStatus = nppiConvert_16u32s_C1R(lTmp2, lTmp2Step, lRight, lRightStep, lTSize);
 
-    /*****
+    /*****/
     // Debug
     lMat = cv::Mat::zeros(lSize.width, lSize.height, CV_16UC1);
     cutilSafeCall(cudaMemcpy2D(lMat.data, lSize.height*sizeof(ushort), lTmp2, lTmp2Step, lSize.height*sizeof(ushort), lSize.width, cudaMemcpyDeviceToHost));
@@ -638,7 +638,7 @@ void colorSegment::computeCuda()
     Npp32s* lLeft = nppiMalloc_32s_C1(lSize.height, lSize.width, &lLeftStep);
     lStatus = nppiConvert_16u32s_C1R(lTmp1, lTmp1Step, lLeft, lLeftStep, lTSize);
 
-    /*****
+    /*****/
     // Debug
     lMat = cv::Mat::zeros(lSize.width, lSize.height, CV_16UC1);
     cutilSafeCall(cudaMemcpy2D(lMat.data, lSize.height*sizeof(ushort), lTmp1, lTmp1Step, lSize.height*sizeof(ushort), lSize.width, cudaMemcpyDeviceToHost));
