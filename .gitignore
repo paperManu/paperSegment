@@ -2,3 +2,4 @@ release
 debug
 *.o
 *.user
+*.swp

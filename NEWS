@@ -1,0 +1,25 @@
+Blobserver release notes
+========================
+
+Blobserver 0.2.4 (2012-??-??)
+-----------------------------
+
+Blobserver 0.2.2 (2012-10-15)
+-----------------------------
+Bug fixed:
+* Corrected an issue which prevented "make install" to work
+
+Blobserver 0.2.0 (2012-10-15)
+-----------------------------
+First release of the Blobserver
+
+New features:
+* Two detection filters: outliers detection and light blob detection
+* Outputs the position, size and blob ID through OSC
+* Possiblity to subscribe to the server through OSC
+* Supports all cameras supported by OpenCV
+
+New prototypes and documentation:
+* Included a man page with examples
+* Included the protocol description
+
