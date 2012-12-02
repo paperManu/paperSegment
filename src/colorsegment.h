@@ -12,15 +12,17 @@
 #define GL3_PROTOTYPES
 
 #include <iostream>
+
 #include "opencv2/opencv.hpp"
 #include "GL/glfw.h"
 #include "glm/glm.hpp"
-#include "cuda.h"
-#include "cutil_inline.h"
-#include "cutil_inline_runtime.h"
 #include "npp.h"
 #include "boost/thread.hpp"
 #include "tbb/atomic.h"
+
+#define __CUDA_RUNTIME_H__
+#include "cuda.h"
+#include "helper_cuda.h"
 
 class colorSegment
 {

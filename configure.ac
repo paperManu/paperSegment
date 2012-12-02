@@ -24,15 +24,37 @@ if test "x${have_opencv}" = "xfalse" ; then
     AC_MSG_ERROR([Missing opencv])
 fi
 
+# CvBlob
+PKG_CHECK_MODULES([CVBLOB], [cvblob >= 0.10.4])
+if test "x${have_cvblob}" = "xfalse" ; then
+    AC_MSG_ERROR([Missing cvblob])
+fi
+
 # Freenect
-PKG_CHECK_MODULES([FREENCT], [libfreenect >= 0.1])
+PKG_CHECK_MODULES([FREENECT], [libfreenect >= 0.1])
 if test "x${have_freenect}" = "xfalse" ; then
     AC_MSG_ERROR([Missing freenect])
+fi
+
+# GLFW
+PKG_CHECK_MODULES([GLFW], [libglfw >= 2.7])
+if test "x${have_glfw}" = "xfalse" ; then
+    AC_MSG_ERROR([Missing glfw])
+fi
+
+# GL
+PKG_CHECK_MODULES([GL], [gl >= 9.0.0])
+if test "x${have_gl}" = "xfalse" ; then
+    AC_MSG_ERROR([Missing gl])
 fi
 
 # Boost
 BOOST_REQUIRE([1.35])
 BOOST_THREADS
+BOOST_SYSTEM
+
+# CUDA
+AX_CHECK_CUDA
 
 # GNU help2man creates man pages from --help output; in many cases, this
 # is sufficient, and obviates the need to maintain man pages separately.
@@ -48,7 +70,6 @@ fi
 AC_CONFIG_FILES([
     Makefile
     src/Makefile
-    man/Makefile
     ])
 AC_OUTPUT
 
