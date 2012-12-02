@@ -522,12 +522,12 @@ void colorSegment::computeCuda()
     lStatus = nppiConvert_16u32s_C1R(mCudaDatabuffer, mCudaDatabufferStep, lTerminals, lTerminalsStep, lSize);
     lStatus = nppiSubC_32s_C1IRSfs((Npp32s)32767, lTerminals, lTerminalsStep, lSize, 1);
 
-    /*****/
+    /*****
     // Debug
     cv::Mat lMat = cv::Mat::zeros(lSize.height, lSize.width, CV_16UC1);
     cudaMemcpy2D(lMat.data, lSize.width*sizeof(ushort), mCudaDatabuffer, mCudaDatabufferStep, lSize.width*sizeof(ushort), lSize.height, cudaMemcpyDeviceToHost);
     cv::imwrite("terminals.png", lMat);
-    /*****/
+    *****/
 
     // On converti simplement les coûts vers le bas
     int lDownStep;
@@ -541,12 +541,12 @@ void colorSegment::computeCuda()
     lStatus = nppiSet_16u_C1R(0, mCudaDatabuffer+mCudaDatabufferStep/2*(lSize.height-1), mCudaDatabufferStep, lRoiSize);
     lStatus = nppiConvert_16u32s_C1R(mCudaDatabuffer, mCudaDatabufferStep, lDown, lDownStep, lSize);
 
-    /*****/
+    /*****
     // Debug
     lMat = cv::Mat::zeros(lSize.height, lSize.width, CV_16UC1);
     cudaMemcpy2D(lMat.data,  lSize.width*sizeof(ushort), mCudaDatabuffer, mCudaDatabufferStep, lSize.width*sizeof(ushort), lSize.height, cudaMemcpyDeviceToHost);
     cv::imwrite("down.png", lMat);
-    /*****/
+    *****/
 
     // Pour les coûts vers le haut, il faut décaler les coûts précédents vers le bas
     int lBufferStep, lTmp1Step;
@@ -572,12 +572,12 @@ void colorSegment::computeCuda()
     Npp32s* lUp = nppiMalloc_32s_C1(lSize.width, lSize.height, &lUpStep);
     lStatus = nppiConvert_16u32s_C1R(lBuffer, lBufferStep, lUp, lUpStep, lSize);
 
-    /*****/
+    /*****
     // Debug
     lMat = cv::Mat::zeros(lSize.height, lSize.width, CV_16UC1);
     cudaMemcpy2D(lMat.data, lSize.width*sizeof(ushort), lBuffer, lBufferStep, lSize.width*sizeof(ushort), lSize.height, cudaMemcpyDeviceToHost);
     cv::imwrite("up.png", lMat);
-    /*****/
+    *****/
     nppiFree(lBuffer);
     nppiFree(lTmp1);
 
@@ -619,12 +619,12 @@ void colorSegment::computeCuda()
     Npp32s* lRight = nppiMalloc_32s_C1(lSize.height, lSize.width, &lRightStep);
     lStatus = nppiConvert_16u32s_C1R(lTmp2, lTmp2Step, lRight, lRightStep, lTSize);
 
-    /*****/
+    /*****
     // Debug
     lMat = cv::Mat::zeros(lSize.width, lSize.height, CV_16UC1);
     cudaMemcpy2D(lMat.data, lSize.height*sizeof(ushort), lTmp2, lTmp2Step, lSize.height*sizeof(ushort), lSize.width, cudaMemcpyDeviceToHost);
     cv::imwrite("right.png", lMat);
-    /*****/
+    *****/
 
     // On décale vers la droite pour avoir les coûts vers la gauche
     lStatus = nppiRotate_16u_C1R(lTmp2, lSquareSize, lTmp2Step, lSquareRect, lTmp1, lTmp1Step, lSquareRect, 0, 0, -1, NPPI_INTER_NN);
@@ -638,12 +638,12 @@ void colorSegment::computeCuda()
     Npp32s* lLeft = nppiMalloc_32s_C1(lSize.height, lSize.width, &lLeftStep);
     lStatus = nppiConvert_16u32s_C1R(lTmp1, lTmp1Step, lLeft, lLeftStep, lTSize);
 
-    /*****/
+    /*****
     // Debug
     lMat = cv::Mat::zeros(lSize.width, lSize.height, CV_16UC1);
     cudaMemcpy2D(lMat.data, lSize.height*sizeof(ushort), lTmp1, lTmp1Step, lSize.height*sizeof(ushort), lSize.width, cudaMemcpyDeviceToHost);
     cv::imwrite("left.png", lMat);
-    /*****/
+    *****/
 
     // On en profite pour allouer les données du graphcut
     int lGCBufferSize;
