@@ -5,9 +5,9 @@
       <Subcolumn vislevel="3">
         <Row popup="false" name="A1">
           <Rhs vislevel="1" flags="1">
-            <iImage window_x="67" window_y="24" window_width="750" window_height="750" image_left="736" image_top="704" image_mag="-2" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
+            <iImage window_x="67" window_y="25" window_width="750" window_height="750" image_left="240" image_top="587" image_mag="2" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
-            <iText formula="Image_file &quot;/home/manu/src/papersegment/release/terminals.png&quot;"/>
+            <iText formula="Image_file &quot;/home/manu/src/papersegment/datas/terminals.png&quot;"/>
           </Rhs>
         </Row>
         <Row popup="false" name="A2">
@@ -30,7 +30,7 @@
           <Rhs vislevel="1" flags="1">
             <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
-            <iText formula="Image_file &quot;/home/manu/src/papersegment/release/down.png&quot;"/>
+            <iText formula="Image_file &quot;/home/manu/src/papersegment/datas/down.png&quot;"/>
           </Rhs>
         </Row>
         <Row popup="false" name="B2">
@@ -55,7 +55,7 @@
           <Rhs vislevel="1" flags="1">
             <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
-            <iText formula="Image_file &quot;/home/manu/src/papersegment/release/up.png&quot;"/>
+            <iText formula="Image_file &quot;/home/manu/src/papersegment/datas/up.png&quot;"/>
           </Rhs>
         </Row>
         <Row popup="false" name="D2">
@@ -80,7 +80,7 @@
           <Rhs vislevel="1" flags="1">
             <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
-            <iText formula="Image_file &quot;/home/manu/src/papersegment/release/right.png&quot;"/>
+            <iText formula="Image_file &quot;/home/manu/src/papersegment/datas/right.png&quot;"/>
           </Rhs>
         </Row>
         <Row popup="false" name="E2">
@@ -99,13 +99,13 @@
         </Row>
       </Subcolumn>
     </Column>
-    <Column x="876" y="249" open="true" selected="true" sform="false" next="4" name="F" caption="right">
+    <Column x="876" y="249" open="true" selected="true" sform="false" next="4" name="F" caption="left">
       <Subcolumn vislevel="3">
         <Row popup="false" name="F1">
           <Rhs vislevel="1" flags="1">
             <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
-            <iText formula="Image_file &quot;/home/manu/src/papersegment/release/left.png&quot;"/>
+            <iText formula="Image_file &quot;/home/manu/src/papersegment/datas/left.png&quot;"/>
           </Rhs>
         </Row>
         <Row popup="false" name="F2">
@@ -282,9 +282,9 @@
       <Subcolumn vislevel="3">
         <Row popup="false" name="I1">
           <Rhs vislevel="1" flags="1">
-            <iImage window_x="157" window_y="62" window_width="654" window_height="519" image_left="309" image_top="212" image_mag="1" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
+            <iImage window_x="157" window_y="62" window_width="654" window_height="519" image_left="312" image_top="216" image_mag="1" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
-            <iText formula="Image_file &quot;/Users/emmanueldurand/Documents/Dev/git/base/projects/kinect/release/kinect.app/Contents/Resources/costs.png&quot;"/>
+            <iText formula="Image_file &quot;/home/manu/src/papersegment/datas/costs_y.png&quot;"/>
           </Rhs>
         </Row>
         <Row popup="false" name="I2">
@@ -296,7 +296,7 @@
         </Row>
         <Row popup="false" name="I3">
           <Rhs vislevel="1" flags="1">
-            <iImage window_x="67" window_y="20" window_width="750" window_height="750" image_left="367" image_top="337" image_mag="1" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
+            <iImage window_x="67" window_y="25" window_width="1189" window_height="821" image_left="289" image_top="183" image_mag="2" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
             <iText formula="Image_transform_item.Flip_item.Top_bottom_item.action I2"/>
           </Rhs>
