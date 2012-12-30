@@ -5,7 +5,7 @@
       <Subcolumn vislevel="3">
         <Row popup="false" name="A1">
           <Rhs vislevel="1" flags="1">
-            <iImage window_x="67" window_y="25" window_width="750" window_height="750" image_left="240" image_top="587" image_mag="2" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
+            <iImage window_x="67" window_y="25" window_width="1346" window_height="892" image_left="333" image_top="205" image_mag="2" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
             <iText formula="Image_file &quot;/home/manu/src/papersegment/datas/terminals.png&quot;"/>
           </Rhs>
@@ -37,7 +37,7 @@
           <Rhs vislevel="0" flags="4">
             <iImage window_x="67" window_y="20" window_width="750" window_height="750" image_left="357" image_top="328" image_mag="1" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
-            <iText formula="B1*2000"/>
+            <iText formula="B1*100"/>
           </Rhs>
         </Row>
         <Row popup="false" name="B3">
@@ -62,12 +62,12 @@
           <Rhs vislevel="0" flags="4">
             <iImage window_x="67" window_y="20" window_width="750" window_height="750" image_left="357" image_top="328" image_mag="1" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
-            <iText formula="D1*2000"/>
+            <iText formula="D1*100"/>
           </Rhs>
         </Row>
         <Row popup="false" name="D3">
           <Rhs vislevel="1" flags="1">
-            <iImage window_x="50" window_y="24" window_width="695" window_height="851" image_left="170" image_top="758" image_mag="2" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
+            <iImage window_x="50" window_y="25" window_width="695" window_height="851" image_left="166" image_top="259" image_mag="16" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
             <iText formula="Image_transform_item.Flip_item.Top_bottom_item.action D2"/>
           </Rhs>
@@ -87,12 +87,12 @@
           <Rhs vislevel="0" flags="4">
             <iImage window_x="67" window_y="20" window_width="750" window_height="750" image_left="357" image_top="328" image_mag="1" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
-            <iText formula="E1*2000"/>
+            <iText formula="E1*100"/>
           </Rhs>
         </Row>
         <Row popup="false" name="E3">
           <Rhs vislevel="1" flags="1">
-            <iImage window_x="743" window_y="24" window_width="695" window_height="851" image_left="619" image_top="640" image_mag="1" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
+            <iImage window_x="743" window_y="25" window_width="695" window_height="851" image_left="201" image_top="247" image_mag="8" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
             <iText formula="Image_transform_item.Flip_item.Top_bottom_item.action E2"/>
           </Rhs>
@@ -112,12 +112,12 @@
           <Rhs vislevel="0" flags="4">
             <iImage window_x="67" window_y="20" window_width="750" window_height="750" image_left="357" image_top="328" image_mag="1" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
-            <iText formula="F1*2000"/>
+            <iText formula="F1*100"/>
           </Rhs>
         </Row>
         <Row popup="false" name="F3">
           <Rhs vislevel="1" flags="1">
-            <iImage window_x="67" window_y="24" window_width="992" window_height="846" image_left="309" image_top="1179" image_mag="4" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
+            <iImage window_x="67" window_y="25" window_width="992" window_height="846" image_left="489" image_top="387" image_mag="1" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
             <iText formula="Image_transform_item.Flip_item.Top_bottom_item.action F2"/>
           </Rhs>

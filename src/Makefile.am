@@ -16,6 +16,7 @@ noinst_HEADERS = \
 	zsegment.h
 
 papersegment_CXXFLAGS = \
+	-std=c++11 \
 	$(BOOST_CPPFLAGS) \
 	$(CUDA_CFLAGS) \
 	-I/usr/local/cuda/samples/common/inc \

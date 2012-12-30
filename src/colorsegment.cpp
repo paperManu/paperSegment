@@ -2,7 +2,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-#define __DEBUG_GC__
+//#define __DEBUG_GC__
 
 /**********************/
 colorSegment::colorSegment()
@@ -485,16 +485,18 @@ void colorSegment::computeCuda()
 {
     NppiSize lSize;
     // On ne va faire la segmentation que sur une zone précise
-    //lSize.width = (mXMax_t - mXMin_t)*2;
-    //lSize.height = (mYMax_t - mYMin_t)*2;
+    lSize.width = (mXMax_t - mXMin_t)*2;
+    lSize.height = (mYMax_t - mYMin_t)*2;
 
-    lSize.width = mFBOSize[0];
-    lSize.height = mFBOSize[1];
+    //lSize.width = mFBOSize[0];
+    //lSize.height = mFBOSize[1];
+
+    mGraphcutSize = lSize.width*lSize.height;
+    mGraphcutRatio = (float)lSize.width/(float)lSize.height;
 
     // Le décallage entre le début des données totales, et le début de la zone étudiée
-    //int lDeltaBuffer = mXMin_t*2 + mYMin_t*2*mFBOSize[0];
-
-    int lDeltaBuffer = 0;
+    int lDeltaBuffer = mXMin_t*2 + mYMin_t*2*mFBOSize[0];
+    //int lDeltaBuffer = 0;
 
     if(mCudaDatabuffer == NULL)
     {
@@ -521,7 +523,9 @@ void colorSegment::computeCuda()
     NppStatus lStatus;
     NppiSize lRoiSize;
 
+#ifdef __DEBUG_GC__
     std::cout << "delta=" << lDeltaBuffer << " - width=" << lSize.width << " - height=" << lSize.height << std::endl;
+#endif
 
     // On copie les résultats du rendu GL
     // Pour les différentiels de coût des terminaux, on les converti simplement,
@@ -667,16 +671,20 @@ void colorSegment::computeCuda()
     mCudaLabels = nppiMalloc_8u_C1(lSize.width, lSize.height, &mCudaLabelsStep);
 
     // Graphcut !
+#ifdef __DEBUG_GC__
     std::cerr << "Start graphcut ...";
+#endif
     lStatus = nppiGraphcut_32s8u(lTerminals, lLeft, lRight, lUp, lDown, lDownStep, lLeftStep,
                                            lSize, mCudaLabels, mCudaLabelsStep, mCudaGraphcutState);
 
+#ifdef __DEBUG_GC__
     if(lStatus < 0)
         std::cerr << "...a error has occured...";
     else if(lStatus > 0)
         std::cerr << "...a warning has occured...";
 
     std::cerr << "... ended." << std::endl;
+#endif
 
     // Copie du résultat dans mLabels
     mLabelCounter++;
@@ -1037,4 +1045,11 @@ bool colorSegment::checkMatrix(cv::Mat &pMat, int pType)
         return false;
 
     return true;
+}
+
+/**********************/
+void colorSegment::getInfos(int &size, float &ratio)
+{
+    size = mGraphcutSize;
+    ratio = mGraphcutRatio;
 }

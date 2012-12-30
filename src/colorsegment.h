@@ -12,6 +12,7 @@
 #define GL3_PROTOTYPES
 
 #include <iostream>
+#include <chrono>
 
 #include "opencv2/opencv.hpp"
 #include "GL/glfw.h"
@@ -49,10 +50,17 @@ public:
     // Récupération de la segmentation
     bool getSegment(cv::Mat &pSegment);
 
+    // Renvoie des infos sur la zone segmentée
+    void getInfos(int &size, float &ratio);
+
 private:
     /***********/
     // Attributs
     /***********/
+    // Variables intéressants à récupérer pour stats
+    int mGraphcutSize;
+    float mGraphcutRatio;
+
     bool mIsRunning;
 
     // Calcul des coûts de lissage

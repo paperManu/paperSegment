@@ -1,4 +1,7 @@
 #include <iostream>
+#include <thread>
+#include <chrono>
+
 #include "opencv2/opencv.hpp"
 #include "boost/lexical_cast.hpp"
 
@@ -13,6 +16,7 @@ using namespace std;
 int main(int argc, char** argv)
 {
     bool lRecording = false;
+    bool lShow = false;
 
     if(argc > 1)
     {
@@ -20,6 +24,8 @@ int main(int argc, char** argv)
         {
             if(strcmp(argv[i], "--record") == 0)
                 lRecording = true;
+            else if(strcmp(argv[i], "--show") == 0)
+                lShow = true;
         }
     }
 
@@ -53,16 +59,22 @@ int main(int argc, char** argv)
     // Allocation des différents objets
     zSegment lZSegment;
     lZSegment.setMax(2000);
-    lZSegment.setFGSmoothing(5);
+    lZSegment.setFGSmoothing(3);
 
-    gmm lGmm;
-    lGmm.setClusterCount(3);
-    lGmm.setEMMinLikelihood(0.01f);
-    lGmm.setMaxCost(100);
+    gmm lBGGmm, lFGGmm;
+    lBGGmm.setClusterCount(3);
+    lBGGmm.setEMMinLikelihood(0.01f);
+    lBGGmm.setMaxEMLoop(30);
+    lBGGmm.setMaxCost(100);
+
+    lFGGmm.setClusterCount(3);
+    lFGGmm.setEMMinLikelihood(0.01f);
+    lFGGmm.setMaxEMLoop(100);
+    lFGGmm.setMaxCost(100);
 
     seed lSeed;
     lSeed.setMinimumSize(128);
-    lSeed.setDilatationSize(16);
+    lSeed.setDilatationSize(8);
 
     colorSegment lColorSegment;
     lColorSegment.init(640, 480);
@@ -79,10 +91,22 @@ int main(int argc, char** argv)
     int lBGNbr = 0;
 
     cerr << "Capturing..." << endl;
+
+    int frameNumber = 0;
+
+    long int grabDuration, presegmentDuration, gmmDuration, segDuration, totalDuration;
+
     while(1)
     {
+        grabDuration = presegmentDuration = gmmDuration = segDuration = totalDuration = 0;
+
+        auto startTime = chrono::high_resolution_clock::now();
+
         lRGB = lKinect->getRGB();
         lDepth = lKinect->getDepthmap();
+
+        auto grabTime = chrono::high_resolution_clock::now();
+        grabDuration = chrono::duration_cast<chrono::microseconds>(grabTime - startTime).count();
 
         if(lSeedNbr < 90)
         {
@@ -92,7 +116,7 @@ int main(int argc, char** argv)
         else if(lInitBG == false)
         {
             //lZSegment.computeStdDev();
-            lZSegment.setStdDev(5);
+            lZSegment.setStdDev(16);
             lInitBG = true;
         }
 
@@ -117,7 +141,12 @@ int main(int argc, char** argv)
                                   lZSegment.getUnknown());
 
             cv::Mat lPresegment = lZSegment.getBackground() + lZSegment.getForeground()/2;
-            cv::imshow("seed", lPresegment);
+
+            if (lShow)
+                cv::imshow("seed", lPresegment);
+
+            auto presegmentTime = chrono::high_resolution_clock::now();
+            presegmentDuration = chrono::duration_cast<chrono::microseconds>(presegmentTime - grabTime).count();
 
             if(lRecording)
             {
@@ -132,19 +161,40 @@ int main(int argc, char** argv)
             {
                 // Calcul de la mixture de gaussienne pour la
                 // plus grosse graîne
-                lGmm.setRgbImg(lRGB);
-                lGmm.calcGmm(lSeeds[0].background);
-                cv::Mat lBGCosts = lGmm.getCosts(lSeeds[0].unknown);
-                lGmm.calcGmm(lSeeds[0].foreground);
-                cv::Mat lFGCosts = lGmm.getCosts(lSeeds[0].unknown);
+                cv::Mat lBGCosts, lFGCosts;
+                thread firstGMM([&] ()
+                {
+                    lBGGmm.setRgbImg(lRGB);
+                    lBGGmm.calcGmm(lSeeds[0].background);
+                    lBGCosts = lBGGmm.getCosts(lSeeds[0].unknown);
+                } );
+                
+                thread secondGMM([&] ()
+                {
+                    lFGGmm.setRgbImg(lRGB);
+                    lFGGmm.calcGmm(lSeeds[0].foreground);
+                    lFGCosts = lFGGmm.getCosts(lSeeds[0].unknown);
+                } );
+
+                firstGMM.join();
+                secondGMM.join();
+
+                auto gmmTime = chrono::high_resolution_clock::now();
+                gmmDuration = chrono::duration_cast<chrono::microseconds>(gmmTime - presegmentTime).count();
 
                 lColorSegment.setCosts(lRGB, lBGCosts, lFGCosts, lSeeds[0].background+lSeeds[0].mask, lSeeds[0].foreground,
                                        lSeeds[0].x_min, lSeeds[0].x_max, 480-lSeeds[0].y_max, 480-lSeeds[0].y_min);
 
                 if(lColorSegment.getSegment(lSegment))
                 {
-                    cv::flip(lSegment, lSegment, 0);
-                    cv::imshow("segment!", lSegment);
+                    if (lShow)
+                    {
+                        cv::flip(lSegment, lSegment, 0);
+                        cv::imshow("segment!", lSegment);
+                    }
+
+                    auto segTime = chrono::high_resolution_clock::now();
+                    segDuration = chrono::duration_cast<chrono::microseconds>(segTime - gmmTime).count();
 
                     if(lRecording)
                     {
@@ -157,8 +207,21 @@ int main(int argc, char** argv)
             }
         }
 
-        lDepth *= 32;
-        cv::imshow("depth", lDepth);
+        auto endTime = chrono::high_resolution_clock::now();
+        totalDuration = chrono::duration_cast<chrono::microseconds>(endTime - startTime).count();
+        int size = 0;
+        float ratio = 0.f;
+        lColorSegment.getInfos(size, ratio);
+
+        std::cout << frameNumber << " " << grabDuration/1000 << " " << presegmentDuration/1000
+            << " " << gmmDuration/1000 << " " << segDuration/1000 << " " << totalDuration/1000
+            << " " << size << " " << ratio << std::endl << std::flush;
+
+        if (lShow)
+        {
+            lDepth *= 32;
+            cv::imshow("depth", lDepth);
+        }
 
         char lKey = cvWaitKey(5);
         if(lKey == 'q')
@@ -167,7 +230,9 @@ int main(int argc, char** argv)
         {
             lCalibrate = !lCalibrate;
         }
-        usleep(10000);
+
+        //usleep(10000);
+        frameNumber++;
     }
 
     cerr << "Stopping..." << endl;

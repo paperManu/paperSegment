@@ -9,6 +9,7 @@
 #define GMM_H
 
 #include "opencv2/opencv.hpp"
+#include <sys/time.h>
 
 struct gaussian2D
 {

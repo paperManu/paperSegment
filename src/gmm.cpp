@@ -1,5 +1,10 @@
+#include <thread>
+#include <atomic>
+
 #include "gmm.h"
 #include "math.h"
+
+#define __THREAD_COUNT__ 4
 
 using namespace std;
 
@@ -112,7 +117,7 @@ void gmm::calcGmm(cv::Mat &pMask)
     lCriteria.maxCount = 5;
     lCriteria.epsilon = 0.5f;
 
-    cv::kmeans(lKMeanSource, mClusterCount, lKMeanLabels, lCriteria, 4, cv::KMEANS_PP_CENTERS, lMu);
+    cv::kmeans(lKMeanSource, mClusterCount, lKMeanLabels, lCriteria, 2, cv::KMEANS_PP_CENTERS, lMu);
 
 //    cerr << "KMean : " << lMaskPixels << " samples." << endl;
 //    cerr << "Mu_H / Mu_S" << endl;
@@ -128,27 +133,44 @@ void gmm::calcGmm(cv::Mat &pMask)
     cv::Mat lSigma(mClusterCount, 2, CV_32F);
     cv::Mat lWeight(mClusterCount, 1, CV_32F);
 
-    for(int i=0; i<mClusterCount; i++) // Pour chaque centroid
-    {
-        lSigma.at<float>(i, 0) = 0.f;
-        lSigma.at<float>(i, 1) = 0.f;
-        int lNumber = 0;
-        for(int index=0; index<lMaskPixels; index++)
-        {
-            if(lKMeanLabels.at<int>(index) == i)
-            {
-                lSigma.at<float>(i, 0) += (lKMeanSource.at<float>(index, 0)-lMu.at<float>(i, 0))*(lKMeanSource.at<float>(index, 0)-lMu.at<float>(i, 0));
-                lSigma.at<float>(i, 1) += (lKMeanSource.at<float>(index, 1)-lMu.at<float>(i, 1))*(lKMeanSource.at<float>(index, 1)-lMu.at<float>(i, 1));
-                lNumber++;
-            }
-        }
-        if(lNumber > 0)
-        {
-            lSigma.at<float>(i, 0) /= (float)lNumber;
-            lSigma.at<float>(i, 1) /= (float)lNumber;
-        }
+    // Ces pointeurs de threads sont réutilisés tout au long de cette méthode
+    std::thread* threads[__THREAD_COUNT__];
 
-        lWeight.at<float>(i) = (float)lNumber/(float)(lMaskPixels);
+    for (int t = 0; t < __THREAD_COUNT__; ++t)
+    {
+        threads[t] = new std::thread([&, t] ()
+        {
+            for(int i=t; i<mClusterCount; i+=__THREAD_COUNT__) // Pour chaque centroid
+            {
+                lSigma.at<float>(i, 0) = 0.f;
+                lSigma.at<float>(i, 1) = 0.f;
+                atomic<int> lNumber;
+                lNumber = 0;
+
+                for(int index=0; index<lMaskPixels; index++)
+                {
+                    if(lKMeanLabels.at<int>(index) == i)
+                    {
+                        lSigma.at<float>(i, 0) += (lKMeanSource.at<float>(index, 0)-lMu.at<float>(i, 0))*(lKMeanSource.at<float>(index, 0)-lMu.at<float>(i, 0));
+                        lSigma.at<float>(i, 1) += (lKMeanSource.at<float>(index, 1)-lMu.at<float>(i, 1))*(lKMeanSource.at<float>(index, 1)-lMu.at<float>(i, 1));
+                        lNumber++;
+                    }
+                }
+
+                if(lNumber > 0)
+                {
+                    lSigma.at<float>(i, 0) /= (float)lNumber;
+                    lSigma.at<float>(i, 1) /= (float)lNumber;
+                }
+
+                lWeight.at<float>(i) = (float)lNumber/(float)(lMaskPixels);
+            }
+        } );
+    }
+    for (int t = 0; t < __THREAD_COUNT__; ++t)
+    {
+        threads[t]->join();
+        delete threads[t];
     }
 
     // On calcule la vraisemblance initiale de cette GM
@@ -166,23 +188,34 @@ void gmm::calcGmm(cv::Mat &pMask)
         // E-step
         cv::Mat lGamma(lMaskPixels, mClusterCount, CV_32F);
 
-        for(int index=0; index<lMaskPixels; index++)
+        for (int t = 0; t < __THREAD_COUNT__; ++t)
         {
-            float lSum = numeric_limits<float>::min();
-
-            for(int i=0; i<mClusterCount; i++)
+            threads[t] = new thread([&, t] ()
             {
-                lSum += lWeight.at<float>(i)*getGaussian2DValueAt(lKMeanSource.at<float>(index, 0), lKMeanSource.at<float>(index, 1),
-                                                                    lMu.at<float>(i, 0), lMu.at<float>(i, 1),
-                                                                    lSigma.at<float>(i, 0), lSigma.at<float>(i, 1));
-            }
+                for(int index=t; index<lMaskPixels; index+=__THREAD_COUNT__)
+                {
+                    float lSum = numeric_limits<float>::min();
 
-            for(int i=0; i<mClusterCount; i++)
-            {
-                lGamma.at<float>(index, i) = 1.f/lSum * lWeight.at<float>(i)*getGaussian2DValueAt(lKMeanSource.at<float>(index, 0), lKMeanSource.at<float>(index, 1),
-                                                                    lMu.at<float>(i, 0), lMu.at<float>(i, 1),
-                                                                    lSigma.at<float>(i, 0), lSigma.at<float>(i, 1));
-            }
+                    for(int i=0; i<mClusterCount; i++)
+                    {
+                        lSum += lWeight.at<float>(i)*getGaussian2DValueAt(lKMeanSource.at<float>(index, 0), lKMeanSource.at<float>(index, 1),
+                                                                            lMu.at<float>(i, 0), lMu.at<float>(i, 1),
+                                                                            lSigma.at<float>(i, 0), lSigma.at<float>(i, 1));
+                    }
+
+                    for(int i=0; i<mClusterCount; i++)
+                    {
+                        lGamma.at<float>(index, i) = 1.f/lSum * lWeight.at<float>(i)*getGaussian2DValueAt(lKMeanSource.at<float>(index, 0), lKMeanSource.at<float>(index, 1),
+                                                                            lMu.at<float>(i, 0), lMu.at<float>(i, 1),
+                                                                            lSigma.at<float>(i, 0), lSigma.at<float>(i, 1));
+                    }
+                }
+            } );
+        }
+        for (int t = 0; t < __THREAD_COUNT__; ++t)
+        {
+            threads[t]->join();
+            delete threads[t];
         }
 
         cv::Mat lN(mClusterCount, 1, CV_32F);
@@ -200,49 +233,71 @@ void gmm::calcGmm(cv::Mat &pMask)
         cv::Mat lMuNew(mClusterCount, 2, CV_32F);
         cv::Mat lSigmaNew(mClusterCount, 2, CV_32F);
 
-        for(int i=0; i<mClusterCount; i++)
+        for (int t = 0; t < __THREAD_COUNT__; ++t)
         {
-            lWeightNew.at<float>(i) = lN.at<float>(i)/(float)lMaskPixels;
-            lMuNew.at<float>(i, 0) = 0.f;
-            lMuNew.at<float>(i, 1) = 0.f;
+            threads[t] = new thread([&, t] ()
+            {
+                for(int i=t; i<mClusterCount; i+=__THREAD_COUNT__)
+                {
+                    lWeightNew.at<float>(i) = lN.at<float>(i)/(float)lMaskPixels;
+                    lMuNew.at<float>(i, 0) = 0.f;
+                    lMuNew.at<float>(i, 1) = 0.f;
 
-            for(int index=0; index<lMaskPixels; index++)
-            {
-                lMuNew.at<float>(i, 0) += lGamma.at<float>(index, i)*lKMeanSource.at<float>(index, 0);
-                lMuNew.at<float>(i, 1) += lGamma.at<float>(index, i)*lKMeanSource.at<float>(index, 1);
-            }
-            if(lN.at<float>(i) == 0)
-            {
-                lMuNew.at<float>(i, 0) = 0.f;
-                lMuNew.at<float>(i, 1) = 0.f;
-            }
-            else
-            {
-                lMuNew.at<float>(i, 0) /= lN.at<float>(i);
-                lMuNew.at<float>(i, 1) /= lN.at<float>(i);
-            }
+                    for(int index=0; index<lMaskPixels; index++)
+                    {
+                        lMuNew.at<float>(i, 0) += lGamma.at<float>(index, i)*lKMeanSource.at<float>(index, 0);
+                        lMuNew.at<float>(i, 1) += lGamma.at<float>(index, i)*lKMeanSource.at<float>(index, 1);
+                    }
+                    if(lN.at<float>(i) == 0)
+                    {
+                        lMuNew.at<float>(i, 0) = 0.f;
+                        lMuNew.at<float>(i, 1) = 0.f;
+                    }
+                    else
+                    {
+                        lMuNew.at<float>(i, 0) /= lN.at<float>(i);
+                        lMuNew.at<float>(i, 1) /= lN.at<float>(i);
+                    }
+                }
+            } );
+        }
+        for (int t = 0; t < __THREAD_COUNT__; ++t)
+        {
+            threads[t]->join();
+            delete threads[t];
         }
 
-        for(int i=0; i<mClusterCount; i++)
+        for (int t = 0; t < __THREAD_COUNT__; ++t)
         {
-            lSigmaNew.at<float>(i, 0) = 0.f;
-            lSigmaNew.at<float>(i, 1) = 0.f;
+            threads[t] = new thread([&, t] ()
+            {
+                for(int i=0; i<mClusterCount; i++)
+                {
+                    lSigmaNew.at<float>(i, 0) = 0.f;
+                    lSigmaNew.at<float>(i, 1) = 0.f;
 
-            for(int index=0; index<lMaskPixels; index++)
-            {
-                lSigmaNew.at<float>(i, 0) += lGamma.at<float>(index, i)*(lKMeanSource.at<float>(index, 0)-lMuNew.at<float>(i, 0))*(lKMeanSource.at<float>(index, 0)-lMuNew.at<float>(i, 0));
-                lSigmaNew.at<float>(i, 1) += lGamma.at<float>(index, i)*(lKMeanSource.at<float>(index, 1)-lMuNew.at<float>(i, 1))*(lKMeanSource.at<float>(index, 1)-lMuNew.at<float>(i, 1));
-            }
-            if(lN.at<float>(i) == 0)
-            {
-                lSigmaNew.at<float>(i, 0) = 0.f;
-                lSigmaNew.at<float>(i, 1) = 0.f;
-            }
-            else
-            {
-                lSigmaNew.at<float>(i, 0) /= lN.at<float>(i);
-                lSigmaNew.at<float>(i, 1) /= lN.at<float>(i);
-            }
+                    for(int index=0; index<lMaskPixels; index++)
+                    {
+                        lSigmaNew.at<float>(i, 0) += lGamma.at<float>(index, i)*(lKMeanSource.at<float>(index, 0)-lMuNew.at<float>(i, 0))*(lKMeanSource.at<float>(index, 0)-lMuNew.at<float>(i, 0));
+                        lSigmaNew.at<float>(i, 1) += lGamma.at<float>(index, i)*(lKMeanSource.at<float>(index, 1)-lMuNew.at<float>(i, 1))*(lKMeanSource.at<float>(index, 1)-lMuNew.at<float>(i, 1));
+                    }
+                    if(lN.at<float>(i) == 0)
+                    {
+                        lSigmaNew.at<float>(i, 0) = 0.f;
+                        lSigmaNew.at<float>(i, 1) = 0.f;
+                    }
+                    else
+                    {
+                        lSigmaNew.at<float>(i, 0) /= lN.at<float>(i);
+                        lSigmaNew.at<float>(i, 1) /= lN.at<float>(i);
+                    }
+                }
+            } );
+        }
+        for (int t = 0; t < __THREAD_COUNT__; ++t)
+        {
+            threads[t]->join();
+            delete threads[t];
         }
 
         // Vérification de la convergence
@@ -360,28 +415,42 @@ cv::Mat gmm::getCosts(cv::Mat &pMask)
 /***********************/
 float gmm::getLikelihood(cv::Mat &pData, cv::Mat &pMu, cv::Mat &pSigma, cv::Mat &pWeight)
 {
-    float lLikelihood = 0.f;
+    atomic<float> lLikelihood;
+    lLikelihood = 0.f;
 
-    for(int index=0; index<pData.size[0]; index++)
+    std::thread* threads[__THREAD_COUNT__];
+    for (int t = 0; t < __THREAD_COUNT__; ++t)
     {
-        float lLocalHood = 0.f;
-
-        for(int i=0; i<mClusterCount; i++)
+        threads[t] = new thread([&, t] ()
         {
-            lLocalHood += pWeight.at<float>(i)*getGaussian2DValueAt(pData.at<float>(index, 0), pData.at<float>(index, 1),
-                                                                    pMu.at<float>(i, 0), pMu.at<float>(i, 1),
-                                                                    pSigma.at<float>(i, 0), pSigma.at<float>(i, 1));
-        }
+            for(int index=t; index<pData.size[0]; index+=__THREAD_COUNT__)
+            {
+                float lLocalHood = 0.f;
 
-        if(lLocalHood == 0.f)
-        {
-            lLocalHood = numeric_limits<float>::min();
-        }
+                for(int i=0; i<mClusterCount; i++)
+                {
+                    lLocalHood += pWeight.at<float>(i)*getGaussian2DValueAt(pData.at<float>(index, 0), pData.at<float>(index, 1),
+                                                                            pMu.at<float>(i, 0), pMu.at<float>(i, 1),
+                                                                            pSigma.at<float>(i, 0), pSigma.at<float>(i, 1));
+                }
 
-        lLikelihood += log10f(lLocalHood);
+                if(lLocalHood == 0.f)
+                {
+                    lLocalHood = numeric_limits<float>::min();
+                }
+
+                lLocalHood = log10f(lLocalHood);
+                lLikelihood = lLikelihood + lLocalHood;
+            }
+        } );
+    }
+    for (int t = 0; t < __THREAD_COUNT__; ++t)
+    {
+        threads[t]->join();
+        delete threads[t];
     }
 
-    lLikelihood /= pData.size[0];
+    lLikelihood = lLikelihood / pData.size[0];
 
     return lLikelihood;
 }
